@@ -47,6 +47,8 @@ void InitEnemy(Enemy* enemy) {
     enemy->isInvulnerable = false;
     enemy->invulnerableTimer = 0.0f;
     enemy->invulnerableDuration = 0.5f; // Curta invulnerabilidade para inimigos
+    
+    enemy->xpValue = 5; // NOVO: Cada inimigo concede 5 de XP
 }
 
 void UpdateEnemy(Enemy* enemy, float dt, const Player* player) {
@@ -170,8 +172,9 @@ Rectangle GetEnemyHitbox(const Enemy* enemy) {
     };
 }
 
-void EnemyTakeDamage(Enemy* enemy, int damage) {
-    if (enemy->isInvulnerable || !enemy->active) return; 
+// MODIFICADO: Retorna o XP do inimigo se ele for derrotado, 0 caso contrário
+int EnemyTakeDamage(Enemy* enemy, int damage) {
+    if (enemy->isInvulnerable || !enemy->active) return 0; // Não leva dano se estiver invulnerável ou inativo
 
     enemy->health -= damage;
     TraceLog(LOG_INFO, "ENEMY: Inimigo recebeu %d de dano! Vida atual: %d", damage, enemy->health);
@@ -182,6 +185,7 @@ void EnemyTakeDamage(Enemy* enemy, int damage) {
     if (enemy->health <= 0) {
         enemy->active = false; 
         TraceLog(LOG_INFO, "ENEMY: Inimigo derrotado!");
-      
+        return enemy->xpValue; // Retorna o XP do inimigo
     }
+    return 0; // Não derrotado, não concede XP
 }

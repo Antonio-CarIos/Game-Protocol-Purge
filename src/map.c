@@ -3,7 +3,8 @@
 #include "raylib.h"
 
 void InitMap(GameMap* map) {
-    
+    // Este mapa é virtualmente infinito pela forma como é desenhado,
+    // então a inicialização da estrutura Map pode ser vazia por enquanto.
 }
 
 void DrawMap(const GameMap* map, const GameAssets* assets) {
@@ -22,8 +23,9 @@ void DrawMap(const GameMap* map, const GameAssets* assets) {
     float mapScale = 3.0f;
 
     // Largura e altura do tile do mapa APÓS a escala
-    float scaledMapTileWidth = mapTexture.width * mapScale;
-    float scaledMapTileHeight = mapTexture.height * mapScale;
+    // Assumimos que a InfiniteMap.png é um tile único de TILE_SIZE x TILE_SIZE
+    float scaledMapTileWidth = TILE_SIZE * mapScale;
+    float scaledMapTileHeight = TILE_SIZE * mapScale;
 
     // Desenha o mapa repetidamente para cobrir toda a tela
     // Isso é útil para cenários "infinitos" com uma textura que se repete bem

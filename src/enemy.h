@@ -40,6 +40,8 @@ typedef struct {
     bool isInvulnerable;     // Se o inimigo está invulnerável após levar dano
     float invulnerableTimer; // Contador para a duração da invulnerabilidade
     float invulnerableDuration; // Duração total da invulnerabilidade
+    
+    int xpValue; // NOVO: Valor de XP que este inimigo concede ao ser derrotado
 
 } Enemy;
 
@@ -50,6 +52,6 @@ void DrawEnemy(const Enemy* enemy, const GameAssets* assets);
 
 // Funções auxiliares 
 Rectangle GetEnemyHitbox(const Enemy* enemy);
-void EnemyTakeDamage(Enemy* enemy, int damage); // Nova função para inimigo levar dano
+int EnemyTakeDamage(Enemy* enemy, int damage); // MODIFICADO: Retorna o XP se o inimigo for derrotado
 
 #endif // ENEMY_H
