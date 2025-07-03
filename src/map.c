@@ -1,6 +1,7 @@
 #include "map.h"
-#include "asset_manager.h" 
+#include "asset_manager.h"
 #include "raylib.h"
+#include <stdio.h> // Para TraceLog
 
 void InitMap(GameMap* map) {
     // Este mapa é virtualmente infinito pela forma como é desenhado,
@@ -15,7 +16,7 @@ void DrawMap(const GameMap* map, const GameAssets* assets) {
     // DEBUG VISUAL: Se a textura do mapa não carregou, desenha um quadrado CIANO
     if (mapTexture.id == 0) {
         TraceLog(LOG_ERROR, "DRAW_MAP_ERROR: Textura do mapa inválida! Verifique logs de carregamento.");
-        DrawRectangle(0, 0, screenWidth, screenHeight, SKYBLUE); 
+        DrawRectangle(0, 0, screenWidth, screenHeight, SKYBLUE);
         return;
     }
 

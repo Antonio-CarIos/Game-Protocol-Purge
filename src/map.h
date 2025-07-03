@@ -1,13 +1,10 @@
+// src/map.h
 #ifndef MAP_H
 #define MAP_H
 
 #include "raylib.h"
-#include "asset_manager.h" 
-
-
-typedef struct {
- 
-} GameMap;
+#include "types.h"         // Contém a definição da struct GameMap e enums
+#include "asset_manager.h" // Para GameAssets
 
 // Declarações das funções do mapa
 void InitMap(GameMap* map);

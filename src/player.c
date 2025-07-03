@@ -1,29 +1,24 @@
+// src/player.c
 #include "player.h"
 #include "asset_manager.h"
 #include "raylib.h"
 #include "raymath.h"
-#include <math.h>
-
-// --- Funções Auxiliares (Estáticas) ---
+#include <math.h> // Para fmaxf, fminf
+#include <stdio.h> // Para TraceLog
+#include <string.h> // Para strcpy, memset
 
 static int GetFrameCountForState(PlayerAnimationState state) {
     switch (state) {
-        case PLAYER_STATE_IDLE:
-            return 8;
-        case PLAYER_STATE_RUN:
-            return 8;
-        case PLAYER_STATE_HIT_DEATH:
-            return 4;
-        default:
-            return 1;
+        case PLAYER_STATE_IDLE: return 8;
+        case PLAYER_STATE_RUN: return 8;
+        case PLAYER_STATE_HIT_DEATH: return 4;
+        default: return 1;
     }
 }
 
 static int GetFrameRowForDirection(PlayerDirection dir) {
     return (int)dir;
 }
-
-// --- Funções Principais do Player ---
 
 void InitPlayer(Player* player, Vector2 startPos) {
     player->position = startPos;
@@ -36,7 +31,7 @@ void InitPlayer(Player* player, Vector2 startPos) {
     player->frameSpeed = 0.1f;
 
     player->health = 100;
-    player->maxHealth = 100; // NOVO: Inicializa vida máxima
+    player->maxHealth = 100;
     player->isInvulnerable = false;
     player->invulnerableTimer = 0.0f;
     player->invulnerableDuration = 1.5f;
@@ -51,12 +46,16 @@ void InitPlayer(Player* player, Vector2 startPos) {
     player->bombCount = player->maxBombs;
     player->bombRechargeTimer = 0.0f;
     player->bombRechargeInterval = 5.0f;
+    player->bombsPerClick = 1;
 
     player->currentXP = 0;
 
-    // NOVO: Inicialização de atributos de dano
-    player->baseDamageMultiplier = 1.0f; // Começa sem bônus
-    player->bombBaseDamage = 50;        // Dano base de uma bomba
+    player->baseDamageMultiplier = 1.0f;
+    player->bombBaseDamage = 50;
+
+    // NOVO: Inicializa o nome do jogador
+    memset(player->name, 0, sizeof(player->name)); // Limpa o buffer do nome
+    strcpy(player->name, "Player"); // Nome padrao inicial
 }
 
 void UpdatePlayer(Player* player, float dt) {
@@ -96,6 +95,22 @@ void UpdatePlayer(Player* player, float dt) {
     player->position.x += input.x * currentSpeed * dt;
     player->position.y += input.y * currentSpeed * dt;
 
+    // NOVO: Clampear a posição do jogador para os limites da tela
+    int screenWidth = GetScreenWidth();
+    int screenHeight = GetScreenHeight();
+
+    // Calcula o hitbox temporariamente para obter as dimensões corretas
+    // (A hitbox final será calculada novamente após o clampeamento)
+    Rectangle tempHitbox = GetPlayerHitbox(player);
+    float halfWidth = tempHitbox.width / 2.0f;
+    float halfHeight = tempHitbox.height / 2.0f;
+
+    // Clampear a posição X
+    player->position.x = fmaxf(halfWidth, fminf(player->position.x, screenWidth - halfWidth));
+    // Clampear a posição Y
+    player->position.y = fmaxf(halfHeight, fminf(player->position.y, screenHeight - halfHeight));
+
+
     int totalFramesForCurrentAnimation = GetFrameCountForState(player->currentState);
 
     player->frameTimer += dt;
@@ -125,6 +140,7 @@ void UpdatePlayer(Player* player, float dt) {
         }
     }
 
+    // Recalcula o hitbox após a posição ter sido clampeada
     player->hitbox = GetPlayerHitbox(player);
 }
 
@@ -150,13 +166,11 @@ void DrawPlayer(const Player* player, const GameAssets* assets) {
         sourceRow = GetFrameRowForDirection(player->currentDirection);
     }
 
-    // AJUSTE PARA A COORDENADA Y DO SPRITE NA SPRITESHEET (CORREÇÃO DE ALINHAMENTO)
-    // Aplica offset APENAS para as direções UP e LEFT, mantendo DOWN e RIGHT sem offset.
     float sourceRecYOffset = 0.0f;
-    if (player->currentDirection == PLAYER_DIR_UP || player->currentDirection == PLAYER_DIR_LEFT) {
-        sourceRecYOffset = 1.0f; // Ajuste de 1 pixel para baixo no recorte Y.
-    }
-
+    // Ajustes para as spritesheets (se aplicável, com base na sua imagem)
+    // if (player->currentDirection == PLAYER_DIR_UP || player->currentDirection == PLAYER_DIR_LEFT) {
+    //     sourceRecYOffset = 1.0f;
+    // }
 
     Rectangle sourceRec = {
         (float)player->currentFrame * TILE_SIZE,
@@ -190,15 +204,24 @@ void DrawPlayer(const Player* player, const GameAssets* assets) {
     #endif
 }
 
-// --- Funções Auxiliares de Colisão e Dano ---
-
 Rectangle GetPlayerHitbox(const Player* player) {
-    float hitboxWidth = TILE_SIZE * 3 * 0.5f;
-    float hitboxHeight = TILE_SIZE * 3 * 0.7f;
+    // Estas são as dimensões da hitbox relativas ao centro do player sprite.
+    // O sprite do player tem escala de 3.0, então TILE_SIZE * 3 = 48 pixels
+    float scaledSpriteWidth = TILE_SIZE * 3;
+    float scaledSpriteHeight = TILE_SIZE * 3;
+
+    // Ajustes de hitbox para o sprite do player
+    // Exemplo: 50% da largura do sprite, 70% da altura do sprite
+    float hitboxWidth = scaledSpriteWidth * 0.5f;
+    float hitboxHeight = scaledSpriteHeight * 0.7f;
+
+    // Offset para centralizar a hitbox ou alinhá-la ao "pé" do player
+    // Se o Y é o centro do sprite, e queremos que a hitbox esteja mais abaixo:
+    float offsetY = scaledSpriteHeight * 0.15f; // Move a hitbox para baixo 15% da altura do sprite
 
     return (Rectangle){
-        player->position.x - hitboxWidth / 2,
-        player->position.y - hitboxHeight / 2 + (TILE_SIZE * 3 * 0.1f),
+        player->position.x - hitboxWidth / 2,         // X do canto superior esquerdo
+        player->position.y - hitboxHeight / 2 + offsetY, // Y do canto superior esquerdo
         hitboxWidth,
         hitboxHeight
     };
@@ -221,28 +244,29 @@ void PlayerTakeDamage(Player* player, int damage) {
     }
 }
 
-// NOVO: Implementação da função PlayerApplyBuff
-void PlayerApplyBuff(Player* player, int type, float value) {
+void PlayerApplyBuff(Player* player, BuffType type, float value) {
     switch (type) {
-        case 0: // Speed
-            player->speed *= (1.0f + (value / 100.0f)); // Aumenta em porcentagem
+        case BUFF_TYPE_SPEED:
+            player->speed *= (1.0f + (value / 100.0f));
             TraceLog(LOG_INFO, "PLAYER_BUFF: Velocidade aumentada para %.2f", player->speed);
             break;
-        case 1: // Health
-            player->health += (int)value; // Aumenta vida atual
-            if (player->health > player->maxHealth) player->health = player->maxHealth; // Não excede a vida máxima
-            TraceLog(LOG_INFO, "PLAYER_BUFF: Vida aumentada para %d (Max: %d)", player->health, player->maxHealth);
+        case BUFF_TYPE_HEALTH:
+            player->maxHealth += (int)value;
+            player->health += (int)value;
+            if (player->health > player->maxHealth) player->health = player->maxHealth;
+            TraceLog(LOG_INFO, "PLAYER_BUFF: Vida maxima aumentada para %d e vida atual curada para %d", player->maxHealth, player->health);
             break;
-        case 2: // Damage (multiplicador)
-            player->baseDamageMultiplier *= (1.0f + (value / 100.0f)); // Aumenta em porcentagem
-            // Também pode aumentar o dano base da bomba diretamente
+        case BUFF_TYPE_DAMAGE:
+            player->baseDamageMultiplier *= (1.0f + (value / 100.0f));
             player->bombBaseDamage = (int)(player->bombBaseDamage * (1.0f + (value / 100.0f)));
             TraceLog(LOG_INFO, "PLAYER_BUFF: Dano aumentado. Multiplicador: %.2f, Dano Bomba: %d", player->baseDamageMultiplier, player->bombBaseDamage);
             break;
-        case 3: // Bomb Capacity
-            player->maxBombs += (int)value; // Aumenta a capacidade máxima de bombas
-            player->bombCount = player->maxBombs; // Opcional: enche as bombas ao aumentar a capacidade
-            TraceLog(LOG_INFO, "PLAYER_BUFF: Capacidade de bombas aumentada para %d", player->maxBombs);
+        case BUFF_TYPE_BOMB_CAP:
+            player->maxBombs += (int)value;
+            player->bombCount = player->maxBombs;
+            player->bombsPerClick += (int)value;
+            if (player->bombsPerClick > 2) player->bombsPerClick = 2; // Limite de 2 bombas por clique por enquanto
+            TraceLog(LOG_INFO, "PLAYER_BUFF: Capacidade de bombas aumentada para %d. Bombs per click: %d", player->maxBombs, player->bombsPerClick);
             break;
         default:
             TraceLog(LOG_WARNING, "PLAYER_BUFF: Tipo de buff desconhecido: %d", type);
