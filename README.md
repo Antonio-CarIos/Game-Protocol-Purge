@@ -12,7 +12,7 @@
 
 ## 📖 1. Contexto Acadêmico
 
-Este jogo foi concebido e desenvolvido no **1º período** do curso de **Ciência da Computação** da **Universidade do Estado do Rio Grande do Norte (UERN)**, como projeto final avaliativo da disciplina de **Introdução à Programação**, ministrada pela **Profa. Ceres Germana Braga Morais**.
+Este jogo foi concebido e desenvolvido no **1º período** do curso de **Ciência da Computação** da **Universidade do Estado do Rio Grande do Norte (UERN)**, como projeto final avaliativo da disciplina de **Introdução à Programação**, ministrada pela **Dra. Ceres Germana Braga Morais**.
 
 ### 👥 Autores
 - **Ana Júlia de Medeiros Leite**
