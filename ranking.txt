@@ -1,1 +1,10 @@
-flavin  2 105.08
+Lucas 7 1100.41
+luciano 7 826.78
+rud 6 752.50
+Player 4 231.99
+isa 3 233.42
+Player 3 133.58
+jeferson 2 146.58
+Player 2 130.81
+ramon 2 112.13
+flavin 2 105.08

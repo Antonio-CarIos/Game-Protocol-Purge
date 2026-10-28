@@ -3,8 +3,8 @@
 #define ENEMY_H
 
 #include "raylib.h"
-#include "types.h"         // Contém a definição da struct Enemy, Player e enums
-#include "asset_manager.h" // Para GameAssets
+#include "types.h"         
+#include "asset_manager.h" 
 
 // Declarações de funções do inimigo
 void InitEnemy(Enemy* enemy);

@@ -1,9 +1,9 @@
 // src/game.c
-#include "game.h"       // Inclui game.h, que por sua vez inclui types.h e asset_manager.h
-#include "player.h"     // Para InitPlayer, UpdatePlayer, DrawPlayer, PlayerApplyBuff, PlayerTakeDamage
-#include "enemy.h"      // Para InitEnemy, UpdateEnemy, DrawEnemy, EnemyTakeDamage
-#include "bomb.h"       // Para InitBomb, UpdateBomb, DrawBomb
-#include "map.h"        // Para InitMap, DrawMap
+#include "game.h"       
+#include "player.h"     
+#include "enemy.h"      
+#include "bomb.h"       
+#include "map.h"        
 
 #include "raylib.h"
 #include "raymath.h"

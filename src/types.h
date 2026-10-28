@@ -2,11 +2,11 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-#include "raylib.h" // Apenas para tipos básicos como Vector2, Rectangle
+#include "raylib.h" 
 
 
 // Definir o número máximo de inimigos e bombas
-#define MAX_ENEMIES_CAPACITY 200
+#define MAX_ENEMIES_CAPACITY 250
 #define MAX_BOMBS 20 // Aumentado para suportar múltiplas bombas por clique
 #define MAX_RANK_ENTRIES 10 // Limite de entradas no ranking
 #define MAX_NAME_LENGTH 30 // Tamanho máximo para o nome do jogador

@@ -39,7 +39,7 @@ void InitEnemy(Enemy* enemy) {
     enemy->invulnerableTimer = 0.0f;
     enemy->invulnerableDuration = 0.5f;
 
-    enemy->xpValue = 5;
+    enemy->xpValue = 8;
 }
 
 void UpdateEnemy(Enemy* enemy, float dt, const Player* player) {
